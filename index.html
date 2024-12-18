@@ -89,6 +89,17 @@
     tbody tr:nth-child(even) {
       background: #efefef;
     }
+    .mark-absent-btn {
+      padding: 5px 10px;
+      font-size: 14px;
+      background: #e74c3c;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+    .mark-absent-btn:hover {
+      background: #c0392b;
+    }
   </style>
 </head>
 <body>
@@ -172,6 +183,7 @@
           <th>Class</th>
           <th>Section</th>
           <th>Status</th>
+          <th>Mark Absent</th>
         </tr>
       </thead>
       <tbody id="attendanceTable"></tbody>
@@ -203,6 +215,16 @@
         newRow.insertCell(2).innerText = className;
         newRow.insertCell(3).innerText = section;
         newRow.insertCell(4).innerText = status;
+        
+        // Mark Absent Button
+        const markAbsentCell = newRow.insertCell(5);
+        const markAbsentBtn = document.createElement("button");
+        markAbsentBtn.innerText = "Mark Absent";
+        markAbsentBtn.classList.add("mark-absent-btn");
+        markAbsentBtn.onclick = function() {
+          markAbsent(name, admission, date, className);
+        };
+        markAbsentCell.appendChild(markAbsentBtn);
       });
     }
 
@@ -269,6 +291,35 @@
         alert("Invalid QR Code!");
       }
     });
+
+    // Mark absent functionality
+    function markAbsent(name, admission, date, className) {
+      const dateClassKey = `${date}-${className}`;
+
+      // If attendance data doesn't exist, create it
+      if (!attendanceData[dateClassKey]) {
+        attendanceData[dateClassKey] = [];
+      }
+
+      const existingRow = attendanceData[dateClassKey].find(row => row.admission === admission);
+      if (existingRow) {
+        existingRow.status = "Absent";
+      } else {
+        attendanceData[dateClassKey].push({
+          name,
+          admission,
+          className,
+          section: "Not Available", // Section not available for absent students
+          status: "Absent"
+        });
+      }
+
+      // Save to localStorage
+      localStorage.setItem('attendanceData', JSON.stringify(attendanceData));
+
+      // Update the attendance table
+      loadAttendance();
+    }
   </script>
 </body>
 </html>
