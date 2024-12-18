@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Date and Class Wise Attendance System</title>
+  <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/html5-qrcode/minified/html5-qrcode.min.js"></script>
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      margin: 0;
+      padding: 0;
+      background: linear-gradient(to right, #6a11cb, #2575fc);
+      color: #fff;
+    }
+    h1, h2 {
+      text-align: center;
+      font-weight: 600;
+      margin-bottom: 10px;
+    }
+    .container {
+      max-width: 800px;
+      margin: 20px auto;
+      background: #fff;
+      color: #333;
+      border-radius: 10px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+      padding: 20px;
+    }
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      margin: 15px 0;
+    }
+    .form-group label {
+      margin-bottom: 5px;
+      font-weight: 500;
+    }
+    .form-group input, .form-group select {
+      padding: 10px;
+      font-size: 16px;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+    }
+    button {
+      padding: 10px 15px;
+      font-size: 16px;
+      font-weight: bold;
+      border: none;
+      border-radius: 5px;
+      background: #6a11cb;
+      color: #fff;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+    button:hover {
+      background: #2575fc;
+    }
+    canvas {
+      margin: 10px auto;
+      display: block;
+    }
+    #reader {
+      width: 300px;
+      margin: 20px auto;
+      border: 2px dashed #2575fc;
+      border-radius: 10px;
+      padding: 10px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+    th, td {
+      padding: 10px;
+      border: 1px solid #ddd;
+      text-align: center;
+    }
+    th {
+      background: #2575fc;
+      color: #fff;
+      font-weight: bold;
+    }
+    tbody tr:nth-child(odd) {
+      background: #f9f9f9;
+    }
+    tbody tr:nth-child(even) {
+      background: #efefef;
+    }
+  </style>
+</head>
+<body>
+  <h1>Date and Class Wise Attendance System</h1>
+
+  <div class="container">
+    <h2>Generate QR Code</h2>
+    <div class="form-group">
+      <label for="studentName">Student Name</label>
+      <input type="text" id="studentName" placeholder="Enter Student Name">
+    </div>
+    <div class="form-group">
+      <label for="admissionNumber">Admission Number</label>
+      <input type="text" id="admissionNumber" placeholder="Enter Admission Number">
+    </div>
+    <div class="form-group">
+      <label for="class">Class</label>
+      <select id="class">
+        <option value="Playgroup">Playgroup</option>
+        <option value="Class 1">Class 1</option>
+        <option value="Class 2">Class 2</option>
+        <option value="Class 3">Class 3</option>
+        <option value="Class 4">Class 4</option>
+        <option value="Class 5">Class 5</option>
+        <option value="Class 6">Class 6</option>
+        <option value="Class 7">Class 7</option>
+        <option value="Class 8">Class 8</option>
+        <option value="Class 9">Class 9</option>
+        <option value="Class 10">Class 10</option>
+        <option value="Class 11">Class 11</option>
+        <option value="Class 12">Class 12</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label for="section">Section</label>
+      <input type="text" id="section" placeholder="Enter Section">
+    </div>
+    <div class="form-group">
+      <label for="date">Date</label>
+      <input type="date" id="date">
+    </div>
+    <button onclick="generateQRCode()">Generate QR Code</button>
+    <canvas id="qrcodeCanvas"></canvas>
+  </div>
+
+  <div class="container">
+    <h2>Scan QR Code</h2>
+    <div id="reader"></div>
+    <p id="scanResult" style="font-weight: bold; color: #2575fc; text-align: center; margin-top: 10px;"></p>
+  </div>
+
+  <div class="container">
+    <h2>Attendance Sheet</h2>
+    <div class="form-group">
+      <label for="attendanceDate">Select Date</label>
+      <input type="date" id="attendanceDate" onchange="loadAttendance()">
+    </div>
+    <div class="form-group">
+      <label for="attendanceClass">Select Class</label>
+      <select id="attendanceClass" onchange="loadAttendance()">
+        <option value="Playgroup">Playgroup</option>
+        <option value="Class 1">Class 1</option>
+        <option value="Class 2">Class 2</option>
+        <option value="Class 3">Class 3</option>
+        <option value="Class 4">Class 4</option>
+        <option value="Class 5">Class 5</option>
+        <option value="Class 6">Class 6</option>
+        <option value="Class 7">Class 7</option>
+        <option value="Class 8">Class 8</option>
+        <option value="Class 9">Class 9</option>
+        <option value="Class 10">Class 10</option>
+        <option value="Class 11">Class 11</option>
+        <option value="Class 12">Class 12</option>
+      </select>
+    </div>
+    <table>
+      <thead>
+        <tr>
+          <th>Student Name</th>
+          <th>Admission Number</th>
+          <th>Class</th>
+          <th>Section</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody id="attendanceTable"></tbody>
+    </table>
+  </div>
+
+  <script>
+    const attendanceTable = document.getElementById('attendanceTable');
+    let attendanceData = JSON.parse(localStorage.getItem('attendanceData')) || {};
+
+    // Load attendance for the selected date and class
+    function loadAttendance() {
+      const date = document.getElementById('attendanceDate').value;
+      const selectedClass = document.getElementById('attendanceClass').value;
+
+      if (!date || !selectedClass) return;
+
+      const dateClassKey = `${date}-${selectedClass}`;
+      const data = attendanceData[dateClassKey] || [];
+      
+      // Clear the existing table data
+      attendanceTable.innerHTML = '';
+      
+      // Populate the table with the attendance data
+      data.forEach(({ name, admission, className, section, status }) => {
+        const newRow = attendanceTable.insertRow();
+        newRow.insertCell(0).innerText = name;
+        newRow.insertCell(1).innerText = admission;
+        newRow.insertCell(2).innerText = className;
+        newRow.insertCell(3).innerText = section;
+        newRow.insertCell(4).innerText = status;
+      });
+    }
+
+    // Generate QR Code
+    function generateQRCode() {
+      const name = document.getElementById('studentName').value.trim();
+      const admission = document.getElementById('admissionNumber').value.trim();
+      const className = document.getElementById('class').value.trim();
+      const section = document.getElementById('section').value.trim();
+      const date = document.getElementById('date').value.trim();
+
+      if (!name || !admission || !className || !section || !date) {
+        alert("Please fill all fields.");
+        return;
+      }
+
+      const qrData = JSON.stringify({ name, admission, class: className, section, date });
+      const canvas = document.getElementById('qrcodeCanvas');
+
+      QRCode.toCanvas(canvas, qrData, (error) => {
+        if (error) console.error(error);
+        console.log("QR Code generated!");
+      });
+    }
+
+    // QR Code Scanner
+    const scanner = new Html5QrcodeScanner("reader", { fps: 10, qrbox: 250 });
+
+    scanner.render((decodedText) => {
+      try {
+        const data = JSON.parse(decodedText);
+        const { name, admission, className, section, date } = data;
+
+        const dateClassKey = `${date}-${className}`;
+
+        // Check if attendance data exists for the date and class
+        if (!attendanceData[dateClassKey]) {
+          attendanceData[dateClassKey] = [];
+        }
+
+        const existingRow = attendanceData[dateClassKey].find(row => row.admission === admission);
+        if (existingRow) {
+          alert(`${name} has already been marked present.`);
+          return;
+        }
+
+        // Add to attendance data
+        attendanceData[dateClassKey].push({
+          name,
+          admission,
+          className,
+          section,
+          status: "Present"
+        });
+
+        // Save to localStorage
+        localStorage.setItem('attendanceData', JSON.stringify(attendanceData));
+
+        // Update the attendance table
+        loadAttendance();
+
+        document.getElementById('scanResult').innerText = `Marked Present: ${name}`;
+      } catch (error) {
+        alert("Invalid QR Code!");
+      }
+    });
+  </script>
+</body>
+</html>
