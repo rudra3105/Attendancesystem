@@ -7,98 +7,65 @@
   <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/html5-qrcode/minified/html5-qrcode.min.js"></script>
   <style>
+    /* Basic styling for the page */
     body {
-      font-family: 'Poppins', sans-serif;
+      font-family: Arial, sans-serif;
       margin: 0;
       padding: 0;
-      background: linear-gradient(to right, #6a11cb, #2575fc);
-      color: #fff;
+      background-color: #f4f4f4;
     }
-    h1, h2 {
+    h1 {
       text-align: center;
-      font-weight: 600;
-      margin-bottom: 10px;
+      color: #333;
     }
     .container {
-      max-width: 800px;
-      margin: 20px auto;
-      background: #fff;
-      color: #333;
-      border-radius: 10px;
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+      margin: 20px;
       padding: 20px;
+      background-color: #fff;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      border-radius: 8px;
     }
     .form-group {
-      display: flex;
-      flex-direction: column;
-      margin: 15px 0;
+      margin-bottom: 10px;
     }
-    .form-group label {
-      margin-bottom: 5px;
-      font-weight: 500;
-    }
-    .form-group input, .form-group select {
-      padding: 10px;
-      font-size: 16px;
-      border: 1px solid #ddd;
-      border-radius: 5px;
-    }
-    button {
-      padding: 10px 15px;
-      font-size: 16px;
+    label {
       font-weight: bold;
-      border: none;
-      border-radius: 5px;
-      background: #6a11cb;
-      color: #fff;
-      cursor: pointer;
-      transition: background 0.3s ease;
     }
-    button:hover {
-      background: #2575fc;
-    }
-    canvas {
-      margin: 10px auto;
-      display: block;
-    }
-    #reader {
-      width: 300px;
-      margin: 20px auto;
-      border: 2px dashed #2575fc;
-      border-radius: 10px;
-      padding: 10px;
+    input, select {
+      width: 100%;
+      padding: 8px;
+      margin: 5px 0;
+      border-radius: 4px;
+      border: 1px solid #ccc;
     }
     table {
       width: 100%;
       border-collapse: collapse;
       margin-top: 20px;
     }
-    th, td {
-      padding: 10px;
+    table, th, td {
       border: 1px solid #ddd;
-      text-align: center;
     }
-    th {
-      background: #2575fc;
-      color: #fff;
-      font-weight: bold;
+    th, td {
+      padding: 8px;
+      text-align: left;
     }
-    tbody tr:nth-child(odd) {
-      background: #f9f9f9;
-    }
-    tbody tr:nth-child(even) {
-      background: #efefef;
-    }
-    .mark-absent-btn {
+    button {
       padding: 5px 10px;
-      font-size: 14px;
-      background: #e74c3c;
+      background-color: #f44336;
       color: white;
       border: none;
       cursor: pointer;
+      border-radius: 4px;
     }
-    .mark-absent-btn:hover {
-      background: #c0392b;
+    button:hover {
+      background-color: #d32f2f;
+    }
+    .qr-container {
+      text-align: center;
+    }
+    #qrcodeCanvas {
+      margin-top: 10px;
     }
   </style>
 </head>
@@ -109,40 +76,29 @@
     <h2>Generate QR Code</h2>
     <div class="form-group">
       <label for="studentName">Student Name</label>
-      <input type="text" id="studentName" placeholder="Enter Student Name">
+      <input type="text" id="studentName" placeholder="Enter student name" required>
     </div>
     <div class="form-group">
       <label for="admissionNumber">Admission Number</label>
-      <input type="text" id="admissionNumber" placeholder="Enter Admission Number">
+      <input type="text" id="admissionNumber" placeholder="Enter admission number" required>
     </div>
     <div class="form-group">
       <label for="class">Class</label>
-      <select id="class">
-        <option value="Playgroup">Playgroup</option>
-        <option value="Class 1">Class 1</option>
-        <option value="Class 2">Class 2</option>
-        <option value="Class 3">Class 3</option>
-        <option value="Class 4">Class 4</option>
-        <option value="Class 5">Class 5</option>
-        <option value="Class 6">Class 6</option>
-        <option value="Class 7">Class 7</option>
-        <option value="Class 8">Class 8</option>
-        <option value="Class 9">Class 9</option>
-        <option value="Class 10">Class 10</option>
-        <option value="Class 11">Class 11</option>
-        <option value="Class 12">Class 12</option>
-      </select>
+      <input type="text" id="class" placeholder="Enter class" required>
     </div>
     <div class="form-group">
       <label for="section">Section</label>
-      <input type="text" id="section" placeholder="Enter Section">
+      <input type="text" id="section" placeholder="Enter section" required>
     </div>
     <div class="form-group">
       <label for="date">Date</label>
-      <input type="date" id="date">
+      <input type="date" id="date" required>
     </div>
     <button onclick="generateQRCode()">Generate QR Code</button>
-    <canvas id="qrcodeCanvas"></canvas>
+
+    <div class="qr-container">
+      <canvas id="qrcodeCanvas"></canvas>
+    </div>
   </div>
 
   <div class="container">
@@ -161,18 +117,11 @@
       <label for="attendanceClass">Select Class</label>
       <select id="attendanceClass" onchange="loadAttendance()">
         <option value="Playgroup">Playgroup</option>
+        <option value="Nursery">Nursery</option>
+        <option value="Junior KG">Junior KG</option>
+        <option value="Senior KG">Senior KG</option>
         <option value="Class 1">Class 1</option>
-        <option value="Class 2">Class 2</option>
-        <option value="Class 3">Class 3</option>
-        <option value="Class 4">Class 4</option>
-        <option value="Class 5">Class 5</option>
-        <option value="Class 6">Class 6</option>
-        <option value="Class 7">Class 7</option>
-        <option value="Class 8">Class 8</option>
-        <option value="Class 9">Class 9</option>
-        <option value="Class 10">Class 10</option>
-        <option value="Class 11">Class 11</option>
-        <option value="Class 12">Class 12</option>
+        <!-- Add other classes as needed -->
       </select>
     </div>
     <table>
@@ -203,10 +152,10 @@
 
       const dateClassKey = `${date}-${selectedClass}`;
       const data = attendanceData[dateClassKey] || [];
-      
+
       // Clear the existing table data
       attendanceTable.innerHTML = '';
-      
+
       // Populate the table with the attendance data
       data.forEach(({ name, admission, className, section, status }) => {
         const newRow = attendanceTable.insertRow();
@@ -215,7 +164,7 @@
         newRow.insertCell(2).innerText = className;
         newRow.insertCell(3).innerText = section;
         newRow.insertCell(4).innerText = status;
-        
+
         // Mark Absent Button
         const markAbsentCell = newRow.insertCell(5);
         const markAbsentBtn = document.createElement("button");
